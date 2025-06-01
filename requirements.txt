@@ -1,0 +1,10 @@
+flask
+opencv-python
+numpy
+face_recognition
+dlib
+pandas
+scipy
+plotly
+Pillow
+gunicorn
