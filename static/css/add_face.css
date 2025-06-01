@@ -1,0 +1,238 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7f9fc; /* Light Background */
+    color: #333;
+    margin: 0;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
+}
+
+.container {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); /* More pronounced shadow */
+    width: 95%;
+    max-width: 600px;
+    text-align: center;
+}
+
+header {
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: #2c3e50; /* Dark Blue */
+    font-size: 2.8em;
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #777;
+    font-size: 1.1em;
+}
+
+section {
+    margin-bottom: 30px;
+    padding: 30px;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow for sections */
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+section h2 {
+    color: #1e88e5; /* Blue Accent */
+    font-size: 2em;
+    margin-top: 0;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-group {
+    margin-bottom: 25px;
+}
+
+.input-group label {
+    display: block;
+    color: #555;
+    margin-bottom: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+input[type="text"],
+input[type="file"] {
+    width: calc(100% - 20px);
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+button.button {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button.add-button {
+    background-color: #28a745; /* Success Green */
+    color: white;
+}
+
+button.add-button:hover {
+    background-color: #1e7e34;
+}
+
+#camera_section {
+    text-align: center;
+}
+
+#camera_section video {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    margin-top: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.camera-controls {
+    margin-bottom: 20px;
+}
+
+button.camera-button {
+    background-color: #6c757d; /* Secondary Grey */
+    color: white;
+    margin-right: 10px;
+}
+
+button.camera-button:hover {
+    background-color: #545b62;
+}
+
+button.capture-button {
+    background-color: #dc3545; /* Danger Red */
+    color: white;
+    margin-top: 15px;
+}
+
+button.capture-button:hover {
+    background-color: #c82333;
+}
+
+#preview {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    margin-top: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+button.save-button {
+    background-color: #007bff; /* Primary Blue */
+    color: white;
+    margin-top: 20px;
+}
+
+button.save-button:hover {
+    background-color: #0056b3;
+}
+
+.loading-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+    color: #007bff;
+    font-size: 1em;
+}
+
+.loader {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.message {
+    margin-top: 15px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.message.success {
+    color: #28a745;
+}
+
+.message.error {
+    color: #dc3545;
+}
+
+.separator {
+    border: 0;
+    height: 1px;
+    background: #eee;
+    margin: 30px 0;
+    width: 80%;
+}
+
+.navigation {
+    margin-top: 30px;
+}
+
+.back-link {
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: #f8f9fa;
+    color: #007bff;
+    text-decoration: none;
+    border-radius: 8px;
+    border: 1px solid #007bff;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.back-link:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+#camera_section .input-group {
+    margin-top: 20px;
+}
+
+#camera_section .input-group label {
+    text-align: center;
+    justify-content: center;
+}
+
+#camera_section #camera_name {
+    margin-bottom: 20px;
+}

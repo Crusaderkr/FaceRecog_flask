@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Recognition with Blink Detection</title>
+    <link rel="stylesheet" href="../static/css/index.css">
+     <link rel="icon" type="image/jpeg" href="../static/images/favicon.jpg">
+ 
+</head>
+<body>
+    <div class="container">
+    <h1>Face Recognition with Blink Detection</h1>
+    <p>This application recognizes faces and marks attendance only if a blink is detected.</p>
+    
+     <div class="buttons">
+    <button id="startBtn">Start Recognition</button> <br>
+    <button id="stopBtn">Stop Recognition</button>
+     </div>
+    <h2>Live Video Feed</h2>
+    <img id="video_feed" src="{{ url_for('video_feed') }}" width="640" height="480" style="border: 1px solid black;">
+
+    <div id="toast" class="toast"></div>
+    
+    <br><br>
+    <a href="{{ url_for('add_face_page') }}">
+        <button id="add_face_button">➕ Add / Upload New Face</button>
+    </a>
+
+    <p id="visualization_link">
+        <a href="{{ url_for('visualize') }}">📊 View Attendance Records & Visualizations</a>
+    </p>
+    </div>
+    <script src="../static/js/index.js"></script>
+</body>
+</html>

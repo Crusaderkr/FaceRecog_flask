@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Dashboard</title>
+    <link rel="stylesheet" href="../static/css/visualization.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+      <link rel="icon" type="image/jpeg" href="../static/images/favicon.jpg">
+</head>
+<body>
+    <header>
+        <h1>📊 Attendance Dashboard</h1>
+    </header>
+
+    <main>
+        <section class="filter-section">
+            <h2>🎯 Filter Attendance</h2>
+            <form action="/visualize/student" method="POST" class="student-filter-form">
+                <label for="student_name">Select Student:</label>
+                <div class="select-wrapper">
+                    <select name="student_name" id="student_name">
+                        {% for student in students %}
+                        <option value="{{ student }}">{{ student }}</option>
+                        {% endfor %}
+                    </select>
+                    <svg fill="#000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 10l5 5 5-5z"/>
+                        <path d="M0 0h24v24H0z" fill="none"/>
+                    </svg>
+                </div>
+                <button type="submit" class="view-button">🔍 View Details</button>
+            </form>
+        </section>
+
+        <section class="chart-display">
+            {% if bar_chart %}
+            <div class="chart-container">
+                <h3>📅 Attendance Count</h3>
+                <div class="chart">{{ bar_chart|safe }}</div>
+            </div>
+            {% endif %}
+
+            {% if line_chart %}
+            <div class="chart-container">
+                <h3>📈 Daily Trend</h3>
+                <div class="chart">{{ line_chart|safe }}</div>
+            </div>
+            {% endif %}
+        </section>
+
+        {% if records %}
+        <section class="records-section">
+            <h2>📝 Attendance Log</h2>
+            <div class="table-responsive">
+                {{ records|safe }}
+            </div>
+        </section>
+        {% endif %}
+           <div class="navigation">
+            <a href="{{ url_for('index') }}" class="back-button"><i class="fas fa-arrow-left"></i> Back to Recognition</a>
+            
+            </a>
+        </div>
+
+        
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Attendance System</p>
+    </footer>
+</body>
+</html>

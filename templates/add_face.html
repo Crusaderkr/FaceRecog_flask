@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Face</title>
+    <link rel="stylesheet" href="../static/css/add_face.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+     <link rel="icon" type="image/jpeg" href="../static/images/favicon.jpg">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-user-plus"></i> Add New Face</h1>
+            <p>Help the system learn new faces for recognition.</p>
+        </header>
+
+        <section class="upload-section">
+            <h2><i class="fas fa-upload"></i> Upload Image</h2>
+            <form id="upload_form" method="POST" action="{{ url_for('add_face') }}" enctype="multipart/form-data">
+                <div class="input-group">
+                    <label for="name"><i class="fas fa-signature"></i> Name:</label>
+                    <input type="text" name="name" placeholder="Enter Name" required>
+                </div>
+                <div class="input-group">
+                    <label for="image"><i class="fas fa-image"></i> Image:</label>
+                    <input type="file" name="image" accept="image/*" required>
+                </div>
+                <button type="submit" class="button add-button"><i class="fas fa-plus-circle"></i> Add Face</button>
+                <div id="upload_loading" class="loading-indicator" style="display:none;">
+                    <span class="loader"></span> Saving face...
+                </div>
+                <div id="upload_message" class="message"></div>
+            </form>
+        </section>
+
+        <hr class="separator">
+
+        <section id="camera_section">
+            <h2><i class="fas fa-camera"></i> Capture Face via Camera</h2>
+            <div class="camera-controls">
+                <button id="open_camera_button" class="button camera-button"><i class="fas fa-video"></i> Open Camera</button>
+            </div>
+            <video id="camera_preview" autoplay playsinline style="display: none;"></video>
+            <button id="capture_button" class="button capture-button" style="display:none;"><i class="fas fa-camera-retro"></i> Capture</button>
+            <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+            <img id="preview" style="display:none;">
+            <div class="input-group">
+                <label for="camera_name"><i class="fas fa-signature"></i> Name:</label>
+                <input type="text" id="camera_name" placeholder="Enter Name">
+            </div>
+            <button id="save_captured_face" class="button save-button"><i class="fas fa-save"></i> Save Captured Face</button>
+            <div id="camera_spinner" class="loading-indicator" style="display: none;"><span class="loader"></span> Saving...</div>
+            <div id="camera_message" class="message"></div>
+        </section>
+
+        <div class="navigation">
+            <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Go back to recognition</a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="../static/js/add_face.js"></script>
+</body>
+</html>
