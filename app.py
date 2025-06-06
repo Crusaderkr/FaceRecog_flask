@@ -11,6 +11,7 @@ import plotly.express as px
 from PIL import Image
 import base64
 from io import BytesIO
+import mediapipe as mp
 
 app = Flask(__name__)
 
@@ -26,8 +27,14 @@ RIGHT_EYE_POINTS = list(range(36, 42))
 KNOWN_FACES_DIR = 'known_faces'
 ATTENDANCE_FILE = 'Attendance.csv'
 
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5)
+
+LEFT_EYE_LANDMARKS = [33, 160, 158, 133, 153, 144]
+RIGHT_EYE_LANDMARKS = [362, 385, 387, 263, 373, 380]
+
 latest_marked_name = None
-tolerance = 0.4
+tolerance = 0.5
 marked_attendance = set()
 known_faces_encodings = []
 known_names_list = []
@@ -78,59 +85,65 @@ def mark_attendance_with_blink(name, blink_detected):
 
 def process_frame(frame, skip_detection=False):
     global cached_boxes, cached_names
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    ih, iw, _ = frame.shape
 
     if skip_detection:
-        # Draw cached boxes and names
+        # Draw cached boxes
         for (top, right, bottom, left), name in zip(cached_boxes, cached_names):
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
-            cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+            cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 1)
         return frame
 
-    # Full detection
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    face_locations = face_recognition.face_locations(rgb_frame)
-    face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    detections = detector(gray_frame)
+    face_locations = []
+    face_encodings = []
+    try:
+        results = face_mesh.process(rgb_frame)
+        if results.multi_face_landmarks:
+            for face_landmarks in results.multi_face_landmarks:
+                x_coords = [lm.x * iw for lm in face_landmarks.landmark]
+                y_coords = [lm.y * ih for lm in face_landmarks.landmark]
+                left, right = int(min(x_coords)), int(max(x_coords))
+                top, bottom = int(min(y_coords)), int(max(y_coords))
+                # Expand bounding box
+                box_width, box_height = right-left, bottom-top
+                expand_w, expand_h = int(box_width*0.1), int(box_height*0.1)
+                left, right = max(left-expand_w,0), min(right+expand_w,iw)
+                top, bottom = max(top-expand_h,0), min(bottom+expand_h,ih)
+                face_locations.append((top,right,bottom,left))
 
-    boxes = []
-    names = []
+        if face_locations:
+            face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+    except Exception as e:
+        print(f"[ERROR] Face mesh processing: {e}")
 
-    for face_encoding, (top, right, bottom, left), dlib_face in zip(face_encodings, face_locations, detections):
-        matches = face_recognition.compare_faces(known_faces_encodings, face_encoding, tolerance=tolerance)
+    boxes, names = [], []
+    for (top,right,bottom,left), encoding in zip(face_locations, face_encodings):
+        matches = face_recognition.compare_faces(known_faces_encodings, encoding, tolerance=tolerance)
         name = "Unknown"
-        blink_detected = False
-
         if True in matches:
-            match_index = matches.index(True)
-            name = known_names_list[match_index]
-
-            landmarks = predictor(gray_frame, dlib_face)
-            landmarks = np.array([(p.x, p.y) for p in landmarks.parts()])
-
-            left_eye = landmarks[LEFT_EYE_POINTS]
-            right_eye = landmarks[RIGHT_EYE_POINTS]
-
-            left_ear = eye_aspect_ratio(left_eye)
-            right_ear = eye_aspect_ratio(right_eye)
-            ear = (left_ear + right_ear) / 2.0
-
-            if ear < EYE_AR_THRESHOLD:
-                blink_detected = True
-
+            name = known_names_list[matches.index(True)]
+            blink_detected = False
+            try:
+                for face_landmarks in results.multi_face_landmarks:
+                    landmarks = face_landmarks.landmark
+                    left_eye = [(int(lm.x*iw), int(lm.y*ih)) for lm in [landmarks[i] for i in LEFT_EYE_LANDMARKS]]
+                    right_eye = [(int(lm.x*iw), int(lm.y*ih)) for lm in [landmarks[i] for i in RIGHT_EYE_LANDMARKS]]
+                    ear = (eye_aspect_ratio(left_eye) + eye_aspect_ratio(right_eye))/2
+                    if ear < EYE_AR_THRESHOLD:
+                        blink_detected = True
+                    break
+            except Exception as e:
+                print(f"[ERROR] Blink detection: {e}")
             mark_attendance_with_blink(name, blink_detected)
-
-        boxes.append((top, right, bottom, left))
+        boxes.append((top,right,bottom,left))
         names.append(name)
+        cv2.rectangle(frame, (left, top), (right, bottom), (0,255,0), 2)
+        cv2.putText(frame, name, (left+6,bottom-6), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 1)
 
-        cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
-        cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-
-    # Update global cache
-    cached_boxes = boxes
-    cached_names = names
-
+    cached_boxes, cached_names = boxes, names
     return frame
+
 
 
 
@@ -142,8 +155,7 @@ def generate_frames():
         return
 
     frame_count = 0
-    detection_interval = 5  # Skip detection for 4 frames, run on every 5th frame
-
+    detection_interval = 3 
     try:
         while True:
             success, frame = cap.read()
@@ -235,8 +247,37 @@ def add_face_page():
     return render_template('add_face.html')
 
 @app.route('/video_feed')
+@app.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    def generate():
+        cap = cv2.VideoCapture(0)
+        if not cap.isOpened():
+            print("[ERROR] Cannot open webcam")
+            yield b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + open('static/error.jpg', 'rb').read() + b'\r\n'
+            return
+        
+        frame_count = 0
+        detection_interval = 3
+        
+        while True:
+            success, frame = cap.read()
+            if not success:
+                print("[ERROR] Failed to capture frame")
+                continue  # Instead of breaking, retry
+
+            skip_detection = frame_count % detection_interval != 0
+            try:
+                processed_frame = process_frame(frame, skip_detection=skip_detection)
+            except Exception as e:
+                print(f"[ERROR] Processing frame: {e}")
+                processed_frame = frame  # fallback to original frame
+
+            frame_count += 1
+            ret, buffer = cv2.imencode('.jpg', processed_frame)
+            if not ret:
+                continue
+            yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/latest_attendance')
 def latest_attendance():
