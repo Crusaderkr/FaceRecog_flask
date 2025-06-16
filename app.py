@@ -5,7 +5,6 @@ import face_recognition
 import os
 from datetime import datetime
 import pandas as pd
-import dlib
 from scipy.spatial import distance as dist
 import plotly.express as px
 from PIL import Image
@@ -17,9 +16,6 @@ app = Flask(__name__)
 
 EYE_AR_THRESHOLD = 0.2
 EYE_AR_CONSEC_FRAMES = 3
-
-detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
 LEFT_EYE_POINTS = list(range(42, 48))
 RIGHT_EYE_POINTS = list(range(36, 42))
